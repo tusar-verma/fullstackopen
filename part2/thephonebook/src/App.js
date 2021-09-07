@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const Search = ({evHandler}) => (
   <p>Search: <input onChange={evHandler}/></p>
@@ -24,15 +25,17 @@ const Persons = (props) => (
 
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456' },
-    { name: 'Ada Lovelace', number: '39-44-5323523' },
-    { name: 'Dan Abramov', number: '12-43-234345' },
-    { name: 'Mary Poppendieck', number: '39-23-6423122' }
-  ])
+  const [ persons, setPersons] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber] = useState('')
   const [ filter, setFilter] = useState('')
+
+  useEffect( () => {
+    const promise = axios.get("http://localhost:3001/persons")
+    promise.then(response => {
+      setPersons(response.data)
+    })
+  }, [])
 
   const personsToShow = filter === '' ? persons : persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
 
@@ -51,7 +54,7 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
 
-    if (persons.some((person)=> person.name === newName)){
+    if (persons.some( person => person.name === newName)){
       window.alert(`${newName} is already added to phonebook`)
     }else{
       const newPerson = {name: newName, number: newNumber}
