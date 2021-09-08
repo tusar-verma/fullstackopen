@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import personService from './services/persons'
 
 const Search = ({evHandler}) => (
   <p>Search: <input onChange={evHandler}/></p>
@@ -19,8 +19,12 @@ const Form = (props) => (
   </form>
 )
 
-const Persons = (props) => (
-  props.personsToShow.map((person) => <p key={person.name}>{person.name} - {person.number}</p>)
+const Persons = ({personsToShow, buttonHandler}) => (
+  personsToShow.map((person) => (
+    <p key={person.name}>
+      {person.name} - {person.number} <button onClick={buttonHandler(person)}>delete</button>
+    </p>
+  ))
 )  
 
 
@@ -30,11 +34,12 @@ const App = () => {
   const [ newNumber, setNewNumber] = useState('')
   const [ filter, setFilter] = useState('')
 
-  useEffect( () => {
-    const promise = axios.get("http://localhost:3001/persons")
-    promise.then(response => {
-      setPersons(response.data)
-    })
+  useEffect(() => {
+    personService
+      .getAllPersons()
+      .then(personsFromServer =>{
+        setPersons(personsFromServer)
+      })
   }, [])
 
   const personsToShow = filter === '' ? persons : persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
@@ -51,14 +56,40 @@ const App = () => {
     setFilter(event.target.value)
   }
 
+  const deleteHandlerGenerator = (person) => {
+    return (() =>  {
+      if (window.confirm(`delete ${person.name}`)){
+        personService.deletePerson(person.id)
+        const newPersons = persons.filter(personas => {
+          return (personas.id !== person.id)
+        })
+        setPersons(newPersons)
+      }
+    })
+  }
+
   const addPerson = (event) => {
     event.preventDefault()
-
-    if (persons.some( person => person.name === newName)){
-      window.alert(`${newName} is already added to phonebook`)
+    const personExists = persons.find( person => person.name === newName)
+    if (personExists !== undefined){
+      if (personExists.number === newNumber){
+        window.alert(`${newName} is already added to phonebook`)
+      } else if (window.confirm(`${personExists.name} is already added to phonebook, replace the old number with a new one?`)) {
+        personService
+          .updateNumber({...personExists, number: newNumber })
+          .then(personModified => {
+            setPersons(persons.map(person =>{
+              return(person.id === personModified.id ? personModified : person)
+            }))
+          })
+      }
     }else{
       const newPerson = {name: newName, number: newNumber}
-      setPersons(persons.concat(newPerson))
+      personService
+        .addPerson(newPerson)
+        .then(personAdded => {
+          setPersons(persons.concat(personAdded))
+        })
     }
   }
 
@@ -72,7 +103,7 @@ const App = () => {
               addPerson={addPerson}
         />
       <h2>Numbers</h2>
-        <Persons personsToShow={personsToShow} />
+        <Persons personsToShow={personsToShow} buttonHandler={deleteHandlerGenerator} />
     </div>
   )
 }
