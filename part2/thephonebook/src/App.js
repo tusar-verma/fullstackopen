@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import personService from './services/persons'
+import './index.css'
 
 const Search = ({evHandler}) => (
   <p>Search: <input onChange={evHandler}/></p>
@@ -27,12 +28,32 @@ const Persons = ({personsToShow, buttonHandler}) => (
   ))
 )  
 
+const Notification = ({message, succesful}) => {
+  if (message === '') {
+    return null
+  }
+  if (succesful) {    
+    return (
+      <div className="succesful">
+        Added {message}
+      </div>
+    )
+  }else{
+    return (
+      <div className="error">
+        Information of {message} has already been removed from server
+      </div>
+    )
+  }
+}
+
 
 const App = () => {
   const [ persons, setPersons] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber] = useState('')
   const [ filter, setFilter] = useState('')
+  const [ notificationMsg, setNotificationMsg] = useState('')
 
   useEffect(() => {
     personService
@@ -55,6 +76,7 @@ const App = () => {
   const searchEventHandler = (event) => {
     setFilter(event.target.value)
   }
+
 
   const deleteHandlerGenerator = (person) => {
     return (() =>  {
@@ -81,6 +103,12 @@ const App = () => {
             setPersons(persons.map(person =>{
               return(person.id === personModified.id ? personModified : person)
             }))
+            setNotificationMsg(personModified.name, true)
+            setTimeout(()=>setNotificationMsg(''),3000)
+          })
+          .catch(reason => {
+            setNotificationMsg(personExists.name, false)
+            setTimeout(()=>setNotificationMsg(''),3000)
           })
       }
     }else{
@@ -88,7 +116,9 @@ const App = () => {
       personService
         .addPerson(newPerson)
         .then(personAdded => {
-          setPersons(persons.concat(personAdded))
+          setPersons(persons.concat(personAdded))          
+          setNotificationMsg(personAdded.name, true)
+          setTimeout(()=>setNotificationMsg(''),3000)
         })
     }
   }
@@ -98,6 +128,7 @@ const App = () => {
       <h2>Phonebook</h2>
         <Search evHandler={searchEventHandler}/>
       <h2>Add new person</h2>
+        <Notification message={notificationMsg}/>
         <Form newName={newName}  newNameInput={newNameInput}
               newNumber={newNumber} newNumberInput={newNumberInput}
               addPerson={addPerson}
