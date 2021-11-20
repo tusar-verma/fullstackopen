@@ -46,12 +46,11 @@ const App = () => {
 
   useEffect( () => (
     axios
-      .get('https://restcountries.eu/rest/v2/all')
+      .get('https://restcountries.com/v2/all')
       .then(response => {
         setData(response.data)
       })
   ),[])
-
   const inputHandler = (event) => {
     setFilter(event.target.value)
   }
