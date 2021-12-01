@@ -1,0 +1,31 @@
+GET http://localhost:3001/info
+
+###
+DELETE  http://localhost:3001/api/persons/8
+
+###
+POST http://localhost:3001/api/persons/ HTTP/1.1
+content-type: application/json
+
+{
+    "name": "sample",
+    "number": "4444"
+}
+
+###
+GET http://localhost:3001/api/persons
+
+###
+DELETE http://localhost:3001/api/persons/assdf
+
+###
+GET http://localhost:3001/api/persons/gsfsd
+
+###
+PUT http://localhost:3001/api/persons/61a13357bf12b7a3a856fe44
+Content-Type: application/json
+
+{
+    "name": "a",
+    "number": 6969
+}
