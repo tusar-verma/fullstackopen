@@ -77,6 +77,37 @@ test('if title and url are missing then its responded with status code 400', asy
         .expect('Content-type', /application\/json/)
 })
 
+test('deleting an existing blog works correctly', async () => {
+    const befDel_blogsInDB = await blogHelper.blogsInDB()
+    const blogToBeRemoved = befDel_blogsInDB[0]
+
+    await api
+        .delete(`/api/blogs/${blogToBeRemoved.id}`)
+        .expect(204)
+    
+    const aftDel_blogsInDB = await blogHelper.blogsInDB()
+    expect(aftDel_blogsInDB.length).toBeLessThan(befDel_blogsInDB.length)
+
+})
+
+test('updating an existing blog by modifing upvotes', async () => {
+    const blogsInDB = await blogHelper.blogsInDB()
+    const befUpdBlog = blogsInDB[0]
+
+    const blogDataToBeUpd = {
+        upvotes: 69,
+        title: "agua"
+    }
+
+    const blogUpdated = await api
+                                .put(`/api/blogs/${befUpdBlog.id}`)
+                                .send(blogDataToBeUpd)
+
+    expect(blogUpdated.body.upvotes).toBe(69)
+    expect(blogUpdated.body.title).toBe("agua")
+
+})
+
 afterAll(() => {
     moongose.connection.close()
 })
