@@ -69,6 +69,19 @@ describe('Creating user', () => {
     })
 })
 
+describe('Login', () => {
+    test('With valid data', async () => {
+        const loginData = {
+            username: "camilo",
+            password: "camilo200"
+        }
+        const a = await api
+                .post('/api/login')
+                .send(loginData)
+                .expect(200)
+    })
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
