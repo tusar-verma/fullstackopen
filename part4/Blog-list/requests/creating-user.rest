@@ -1,0 +1,18 @@
+POST http://localhost:3001/api/users
+Content-Type: application/json
+
+{
+    "username": "tusar",
+    "name": "tusar",
+    "password": "camilo200"
+}
+
+### bad data (min length of username and pass is 3
+POST http://localhost:3001/api/users
+Content-Type: application/json
+
+{
+    "username": "tsa",
+    "name": "tusar",
+    "password": "cm"
+}
