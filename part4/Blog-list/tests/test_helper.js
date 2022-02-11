@@ -6,14 +6,12 @@ const initialBlogs = [
     {
         author: "asd",
         title: "asd",
-        url: "asd.com",
-        upvotes: 54
+        url: "asd.com"
     },
     {
         author: "kjh",
         title: "kjh",
-        url: "kjh.com",
-        upvotes: 23
+        url: "kjh.com"
     }
 ]
 

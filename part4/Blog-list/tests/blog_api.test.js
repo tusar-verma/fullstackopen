@@ -6,16 +6,33 @@ const api = supertest(app)
 
 const BlogModel = require('../models/blogs')
 
+let credentials = undefined
 
+const login = async () => {
+    const testUser = {
+        username: "tusar",
+        password: "tusar200"
+    }
+
+    return await api
+                    .post('/api/login')
+                    .send(testUser)
+}
 
 beforeEach(async () => {
     await BlogModel.deleteMany({})
+    
+    const result = await login()
+    credentials = result.body
 
-    const blogObjs = blogHelper.initialBlogs.map(blog => new BlogModel(blog))
-    const promises = blogObjs.map(blogObj => blogObj.save())
+    for (const blog of blogHelper.initialBlogs) {
+        const result = await api
+                                .post('/api/blogs')
+                                .set('Authorization', `Bearer ${credentials.token}`)
+                                .send(blog)
+    }
 
-    await Promise.all(promises)
-})
+}, 10000)
 
 test("GET responses with correct json", async () => {
     const blogsInDB = await api.get('/api/blogs')
@@ -29,21 +46,22 @@ test('Unique identifier property of the blog posts is named id', async () => {
 
 test('creating a blog', async () => { 
     const newBlog = {
-        author: "uio",
-        title: "uio",
-        url: "uio.com",
-        upvotes: 2
+        author: "uioa",
+        title: "uiao",
+        url: "uio.com"
     }
-    await api
-        .post('/api/blogs')
-        .send(newBlog)
-        .expect(201)
-        .expect('Content-type', /application\/json/)
+    const result = await api
+            .post('/api/blogs')
+            .set('Authorization', `Bearer ${credentials.token}`)
+            .send(newBlog)
+            .expect(201)
+            .expect('Content-type', /application\/json/)
+
 
     const blogsInDB = await blogHelper.blogsInDB()
     expect(blogsInDB.length).toBe(blogHelper.initialBlogs.length +1)
-    const blogsWithoutID = blogsInDB.map(({id, ...rest}) => rest)
-    expect(blogsWithoutID).toContainEqual(newBlog)
+    const blogsWithoutExtraData = blogsInDB.map(({id, user, upvotes, ...rest}) => rest)
+    expect(blogsWithoutExtraData).toContainEqual(newBlog)
 })
 
 test("if upvotes property is missing it will default to 0", async () => {
@@ -54,12 +72,13 @@ test("if upvotes property is missing it will default to 0", async () => {
     }
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${credentials.token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-type', /application\/json/)
 
     const blogsInDB = await blogHelper.blogsInDB()
-    const blogsWithoutID = blogsInDB.map(({id, ...rest}) => rest)
+    const blogsWithoutID = blogsInDB.map(({id, user, ...rest}) => rest)
     newBlog.upvotes = 0
     expect(blogsWithoutID).toContainEqual(newBlog)
 
@@ -72,6 +91,7 @@ test('if title and url are missing then its responded with status code 400', asy
     }
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${credentials.token}`)
         .send(newBlog)
         .expect(400)
         .expect('Content-type', /application\/json/)
@@ -83,6 +103,7 @@ test('deleting an existing blog works correctly', async () => {
 
     await api
         .delete(`/api/blogs/${blogToBeRemoved.id}`)
+        .set('Authorization', `Bearer ${credentials.token}`)
         .expect(204)
     
     const aftDel_blogsInDB = await blogHelper.blogsInDB()

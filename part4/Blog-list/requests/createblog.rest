@@ -7,3 +7,13 @@ Content-Type: application/json
     "url": "test3.com",
     "likes": "0"
 }
+###
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InR1c2FyIiwiaWQiOiI2MjA1MjJmZjQ1ZjVlMTU1MDQwZjg1NmEiLCJpYXQiOjE2NDQ1ODM4NTR9.45fFOQndtPw4QYyZGIPbjhZLCxh899whAnX3w5LQSSM
+
+{
+    "title": "testing",
+    "author": "tester",
+    "url": "test.test"
+}
