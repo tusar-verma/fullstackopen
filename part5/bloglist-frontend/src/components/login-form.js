@@ -1,4 +1,5 @@
 import loginService from '../services/login-service'
+import blogService from '../services/blog-service'
 
 
 const loginForm = ({username, password, setUsername, setPassword, setUser}) => {
@@ -8,12 +9,12 @@ const loginForm = ({username, password, setUsername, setPassword, setUser}) => {
         try {
             const result = await loginService.login(username, password)
             if (result.status === 200) {
+                window.localStorage.setItem('loggedBloglistUser', JSON.stringify(result.data))
+                setUsername('')
+                setPassword('')
+                blogService.setToken(result.data.token)
                 setUser(result.data)
-
-            } else {
-                console.log(result.data)
-            } 
-            
+            }             
         } catch (error) {
             console.log(error)
         }
@@ -29,8 +30,8 @@ const loginForm = ({username, password, setUsername, setPassword, setUser}) => {
                         type="text" 
                         value={username}
                         name="Username"
-                        onChange={({target}) => {setUsername(target.value)}}
-                    ></input>
+                        onChange={(event) => setUsername(event.target.value)}
+                    />
                 </div>
                 <div>
                     password 
@@ -38,8 +39,8 @@ const loginForm = ({username, password, setUsername, setPassword, setUser}) => {
                         type="text" 
                         value={password}
                         name="Password"
-                        onChange={({target}) => {setPassword(target.value)}}
-                    ></input>
+                        onChange={(event) => setPassword(event.target.value)}
+                    />
                 </div>     
                 <button type='submit'>login</button>           
             </div>
