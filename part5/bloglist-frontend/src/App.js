@@ -2,6 +2,7 @@ import blogService from './services/blog-service'
 import Blog from './components/blog'
 import LoginForm from './components/login-form'
 import NewBlogForm from './components/newblog-form'
+import Notification from './components/notification'
 import { useState, useEffect } from 'react'
 
 const App = () => {
@@ -11,6 +12,7 @@ const App = () => {
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
   const [author, setAuthor] = useState('')
+  const [notification, setNotification] = useState([null, false])
   const [user, setUser] = useState(null)
 
   // blogService.getAll().then(blogsInDB => setBlogs(blogsInDB))
@@ -42,7 +44,11 @@ const App = () => {
 
 
   return (
-    <div>
+    <div>      
+      <Notification
+              message={notification[0]}
+              type={notification[1]}
+      />
       {
         user === null ?
           <LoginForm
@@ -51,10 +57,10 @@ const App = () => {
             setUsername={setUsername}
             setPassword={setPassword}
             setUser={setUser}
+            setNotification={setNotification}
           /> :
           <div>
             <h2>Blogs</h2>
-
             <p>
               {user.name} logged in
               <button type='button' onClick={logOutHandler}>Log out</button>
@@ -69,7 +75,7 @@ const App = () => {
               setAuthor={setAuthor}
               url={url}
               setUrl={setUrl}
-              
+              setNotification={setNotification}
             />
             {blogs.map((blog, i) => 
               <Blog

@@ -2,7 +2,7 @@ import loginService from '../services/login-service'
 import blogService from '../services/blog-service'
 
 
-const loginForm = ({username, password, setUsername, setPassword, setUser}) => {
+const loginForm = ({username, password, setUsername, setPassword, setUser, setNotification}) => {
    
     const loginHandler = async (event) => {        
         event.preventDefault()
@@ -12,10 +12,14 @@ const loginForm = ({username, password, setUsername, setPassword, setUser}) => {
                 window.localStorage.setItem('loggedBloglistUser', JSON.stringify(result.data))
                 setUsername('')
                 setPassword('')
+                setNotification(['Logged in succesfully', true])
+                setTimeout(()=>{setNotification([null, false])},5000)
                 blogService.setToken(result.data.token)
                 setUser(result.data)
             }             
         } catch (error) {
+            setNotification(['Error in log in', false])
+            setTimeout(()=>{setNotification([null, false])},5000)
             console.log(error)
         }
     }

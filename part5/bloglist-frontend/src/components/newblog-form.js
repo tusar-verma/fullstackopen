@@ -1,6 +1,6 @@
 import blogService from "../services/blog-service"
 
-const createFrom = ({title, setTitle, author, setAuthor, url, setUrl, blogs, setBlogs}) => {
+const createFrom = ({title, setTitle, author, setAuthor, url, setUrl, blogs, setBlogs, setNotification}) => {
     const sumbitHandler = async (event) => {
         event.preventDefault()
         const newBlog = {
@@ -8,9 +8,17 @@ const createFrom = ({title, setTitle, author, setAuthor, url, setUrl, blogs, set
             author: author,
             url: url
         }
-        const result = await blogService.create(newBlog)
-        if (result.data) {
-            setBlogs(blogs.concat(result.data))
+        try {
+            const result = await blogService.create(newBlog)
+            if (result.data) {
+                setBlogs(blogs.concat(result.data))
+            }
+            setNotification(['Blog created succesfully', true])
+            setTimeout(()=>{setNotification([null, false])},5000)            
+        } catch (error) {
+            setNotification(['Could not create blog', false])
+            setTimeout(()=>{setNotification([null, false])},5000)   
+            console.log(error)
         }
     }
     return (

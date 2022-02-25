@@ -15,7 +15,6 @@ const getAll = async () => {
 }
 
 const create = async (blogdata) => {
-    console.log(blogdata, token)
     const config = {
         headers: {Authorization: token}
     }
